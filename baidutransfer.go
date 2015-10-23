@@ -10,7 +10,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -69,42 +68,35 @@ func main() {
 Loop:
 	for i := 1; ; i++ {
 		url := fmt.Sprintf(list_fmt, uid, i)
-		resp, err := http.Get(url)
+		body, err := HttpRequest("GET", url, map[string]string{
+			"User-Agent":      user_agent_chrome,
+			"Cookie":          cookie,
+			"Accept-Encoding": "gzip, deflate",
+		}, nil)
 		checkError(err)
-		if resp.StatusCode == 200 {
-			var items Items
-
-			body, err := ioutil.ReadAll(resp.Body)
-			checkError(err)
-			err = json.Unmarshal(body, &items)
-			checkError(err)
-			n := len(items.List)
-			for j := 0; j < n; j++ {
-				if items.List[j].Ctime == 0 {
-					resp.Body.Close()
-					break Loop
-				}
-				t := time.Unix(items.List[j].Ctime, 0)
-				y, m, d := t.Date()
-				h := t.Hour()
-				min := t.Minute()
-				when := fmt.Sprintf("%d-%02d-%02d %02d:%02d", y, m, d, h, min)
-				url_str := fmt.Sprintf("http://yun.baidu.com/s/%s", items.List[j].Shorturl)
-				baiduTransfer(url_str, items.List[j].TypicalPath, "/tmp")
-				fmt.Printf("%s\t%s\t%s\r\n", items.List[j].Shorturl, when, items.List[j].TypicalPath)
-				fmt.Println("======================================================================")
+		var items Items
+		err = json.Unmarshal(body, &items)
+		checkError(err)
+		n := len(items.List)
+		for j := 0; j < n; j++ {
+			if items.List[j].Ctime == 0 {
+				break Loop
 			}
-			if n == 0 {
-				resp.Body.Close()
-				break
-			}
-			time.Sleep(time.Millisecond * 500)
-		} else {
-			fmt.Println("Http error,", resp.StatusCode)
+			t := time.Unix(items.List[j].Ctime, 0)
+			y, m, d := t.Date()
+			h := t.Hour()
+			min := t.Minute()
+			when := fmt.Sprintf("%d-%02d-%02d %02d:%02d", y, m, d, h, min)
+			url_str := fmt.Sprintf("http://yun.baidu.com/s/%s", items.List[j].Shorturl)
+			baiduTransfer(url_str, items.List[j].TypicalPath, "/tmp")
+			fmt.Printf("%s\t%s\t%s\r\n", items.List[j].Shorturl, when, items.List[j].TypicalPath)
+			fmt.Println("======================================================================")
 		}
-		resp.Body.Close()
+		if n == 0 {
+			break
+		}
+		time.Sleep(time.Millisecond * 500)
 	}
-
 }
 
 func baiduTransfer(url_str, file, path string) {
