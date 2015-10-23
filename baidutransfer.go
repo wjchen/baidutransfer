@@ -88,7 +88,7 @@ Loop:
 			min := t.Minute()
 			when := fmt.Sprintf("%d-%02d-%02d %02d:%02d", y, m, d, h, min)
 			url_str := fmt.Sprintf("http://yun.baidu.com/s/%s", items.List[j].Shorturl)
-			baiduTransfer(url_str, items.List[j].TypicalPath, "/tmp")
+			baiduTransfer(url_str, items.List[j].TypicalPath, savepath)
 			fmt.Printf("%s\t%s\t%s\r\n", items.List[j].Shorturl, when, items.List[j].TypicalPath)
 			fmt.Println("======================================================================")
 		}
@@ -120,7 +120,7 @@ func baiduTransfer(url_str, file, path string) {
 		"path":     path,
 	})
 	checkError(err)
-	fmt.Print(string(body2))
+	fmt.Println(string(body2))
 }
 
 const MAX_BODY_SIZE = 32 * 1024 * 1024 //32M
