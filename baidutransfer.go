@@ -71,7 +71,6 @@ Loop:
 		url := fmt.Sprintf(list_fmt, uid, i)
 		resp, err := http.Get(url)
 		checkError(err)
-		defer resp.Body.Close()
 		if resp.StatusCode == 200 {
 			var items Items
 
@@ -82,6 +81,7 @@ Loop:
 			n := len(items.List)
 			for j := 0; j < n; j++ {
 				if items.List[j].Ctime == 0 {
+					resp.Body.Close()
 					break Loop
 				}
 				t := time.Unix(items.List[j].Ctime, 0)
@@ -95,12 +95,14 @@ Loop:
 				fmt.Println("======================================================================")
 			}
 			if n == 0 {
+				resp.Body.Close()
 				break
 			}
 			time.Sleep(time.Millisecond * 500)
 		} else {
 			fmt.Println("Http error,", resp.StatusCode)
 		}
+		resp.Body.Close()
 	}
 
 }
