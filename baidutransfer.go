@@ -34,31 +34,31 @@ const (
 )
 
 type Items struct {
-	Errno int    `json:"errno"`
+	Errno int64  `json:"errno"`
 	List  []item `json:"list"`
 }
 
 type item struct {
-	ShareId         int      `json:"shareId"`
+	ShareId         int64    `json:"shareId"`
 	FsIds           []string `json:"fsIds"`
-	Channel         int      `json:"channel"`
-	ChannelInfo     []int    `json:"channelInfo"`
-	Status          int      `json:"status"`
-	ExpiredType     int      `json:"expiredType"`
+	Channel         int64    `json:"channel"`
+	ChannelInfo     []int64  `json:"channelInfo"`
+	Status          int64    `json:"status"`
+	ExpiredType     int64    `json:"expiredType"`
 	Passwd          string   `json:"passwd"`
 	Name            string   `json:"name"`
 	Description     string   `json:"description"`
 	Ctime           int64    `json:"ctime"`
-	AppId           int      `json:"appId"`
-	Public          int      `json:"public"`
-	PublicChannel   int      `json:"publicChannel"`
-	TplId           int      `json:"tplId"`
+	AppId           int64    `json:"appId"`
+	Public          int64    `json:"public"`
+	PublicChannel   int64    `json:"publicChannel"`
+	TplId           int64    `json:"tplId"`
 	Shorturl        string   `json:"shorturl"`
-	Tag             int      `json:"tag"`
+	Tag             int64    `json:"tag"`
 	Shareinfo       string   `json:"shareinfo"`
-	Bitmap          int      `json:"bitmap"`
-	Port            int      `json:"port"`
-	TypicalCategory int      `json:"typicalCategory"`
+	Bitmap          int64    `json:"bitmap"`
+	Port            int64    `json:"port"`
+	TypicalCategory int64    `json:"typicalCategory"`
 	TypicalPath     string   `json:"typicalPath"`
 }
 
