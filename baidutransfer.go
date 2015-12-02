@@ -119,7 +119,6 @@ func baiduTransfer(url_str, file, path string) error {
 		"Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
 		"Accept-Encoding": "gzip, deflate",
 		"Accept-Language": "zh-CN,zh;q=0.8",
-		"DNT":             "1",
 	}, nil)
 	checkError(err)
 
@@ -144,7 +143,7 @@ func baiduTransfer(url_str, file, path string) error {
 	checkError(err)
 	fmt.Println(string(body2))
 	resp := struct {
-		Errno   int         `json:"errno"`
+		Errno   int64       `json:"errno"`
 		Task_id interface{} `json:"task_id"`
 		Info    interface{} `json:"info"`
 	}{}
@@ -158,7 +157,7 @@ func baiduTransfer(url_str, file, path string) error {
 
 var cookieJar = &myCookieJar{}
 
-const MAX_BODY_SIZE = 8 * 1024 * 1024 //2M
+const MAX_BODY_SIZE = 8 * 1024 * 1024 //8M
 func HttpRequest(method, url_str string, head_map, form_map interface{}) ([]byte, error) {
 	buffer := bytes.NewBuffer(nil)
 	url_obj, err := url.Parse(url_str)
@@ -300,6 +299,26 @@ func GetInfo(body string) (shareid, uk, token string) {
 	array = re_token.FindStringSubmatch(body)
 	if len(array) >= 2 {
 		token = array[1]
+	}
+
+	//another method
+	if len(shareid) == 0 || len(uk) == 0 || len(token) == 0 {
+		re_shareid := regexp.MustCompile("FileUtils.shareid=\"([0-9].*?)\"")
+		array := re_shareid.FindStringSubmatch(body)
+		if len(array) >= 2 {
+			shareid = array[1]
+		}
+
+		re_uk := regexp.MustCompile("FileUtils.uk=\"([0-9].*?)\"")
+		array = re_uk.FindStringSubmatch(body)
+		if len(array) >= 2 {
+			uk = array[1]
+		}
+		re_token := regexp.MustCompile("FileUtils.bdstoken=\"([0-9a-z].*?)\"")
+		array = re_token.FindStringSubmatch(body)
+		if len(array) >= 2 {
+			token = array[1]
+		}
 	}
 	return shareid, uk, token
 }
