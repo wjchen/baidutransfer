@@ -202,6 +202,7 @@ func HttpRequest(method, url_str string, head_map, form_map interface{}) ([]byte
 	}
 
 	response, err := client.Do(request)
+
 	if err != nil {
 		return buffer.Bytes(), errors.New("HTTP GET failed")
 	}
@@ -214,13 +215,16 @@ func HttpRequest(method, url_str string, head_map, form_map interface{}) ([]byte
 	var rd io.Reader
 	switch response.Header.Get("Content-Encoding") {
 	case "gzip":
-		var err error
-		rd, err = gzip.NewReader(response.Body)
+		gzipRd, err := gzip.NewReader(response.Body)
 		if err != nil {
 			return buffer.Bytes(), errors.New("HTTP body read error")
 		}
+		defer gzipRd.Close()
+		rd = gzipRd
 	case "deflate":
-		rd = flate.NewReader(response.Body)
+		flateRd := flate.NewReader(response.Body)
+		defer flateRd.Close()
+		rd = flateRd
 	default:
 		rd = bufio.NewReader(response.Body)
 	}
